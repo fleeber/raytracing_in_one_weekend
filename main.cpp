@@ -18,8 +18,37 @@ r g b
 
 */
 
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+    //given a (centered at origin) sphere, radius r, and a point (x,y,z) ON the sphere,
+    //x*x + y*y + z*z = r*r
+    //                <      point is inside sphere
+    //                >      point is outside sphere
+    //given an arbitrarily positioned sphere at (Cx, Cy, Cz)
+    //(x-Cx)(x-Cx) + (y-Cy)(y-Cy) + (z-Cz)(z-Cz) = r*r    (Cx => C_x  not C*x)
+    //vector from center C to point P(x,y,z) is (P-C)
+    //(P-C) dot (P-C) = (x-Cx)(x-Cx) + (y-Cy)(y-Cy) + (z-Cz)(z-Cz)
+    //equivalently (P-C) dot (P-C) = r*r
+    //a point P that satisfies the above equation is on the sphere.
+    
+    vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2.0 * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius * radius;
+    auto discriminant = b*b - 4*a*c;
+    //positive discriminant = ray passes in and out at 2 points on sphere
+    //negative discriminant = ray never touches sphere
+    //zero discriminant = ray touches sphere once tangentially
+    return (discriminant >= 0);
+}
+
 color ray_color(const ray& r) {
-    return color(0,0,0);
+    if(hit_sphere(point3(0,0,-1), 0.5, r))
+        return color(1,0,0); //make pixel red to render sphere
+    vec3 unit_direction = unit_vector(r.direction());
+    auto a = 0.5 * (unit_direction.y() + 1.0);
+    //linear interpolation = (1 - a) * startValue + a * endValue   where 0.0<=a<=1.0
+                        //white                 //blue
+    return (1.0 - a) * color(1.0,1.0,1.0) + a * color(0.5,0.7,1.0);
 }
 
 int main() {
