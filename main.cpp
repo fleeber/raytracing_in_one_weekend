@@ -18,7 +18,7 @@ r g b
 
 */
 
-bool hit_sphere(const point3& center, double radius, const ray& r) {
+double hit_sphere(const point3& center, double radius, const ray& r) {
     //given a (centered at origin) sphere, radius r, and a point (x,y,z) ON the sphere,
     //x*x + y*y + z*z = r*r
     //                <      point is inside sphere
@@ -38,12 +38,21 @@ bool hit_sphere(const point3& center, double radius, const ray& r) {
     //positive discriminant = ray passes in and out at 2 points on sphere
     //negative discriminant = ray never touches sphere
     //zero discriminant = ray touches sphere once tangentially
-    return (discriminant >= 0);
+    if(discriminant < 0) {
+        return -1.0;
+    } else { //find the location of the hit
+        return (-b - sqrt(discriminant)) / (2.0 * a); //right now it's less of a ray and more of a line
+    }
 }
 
 color ray_color(const ray& r) {
-    if(hit_sphere(point3(0,0,-1), 0.5, r))
-        return color(1,0,0); //make pixel red to render sphere
+    auto t = hit_sphere(point3(0,0,-1), 0.5, r); //define a sphere
+    if(t > 0.0) { //then render the sphere
+        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
+        //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
+        return 0.5 * color(N.x() + 1, N.y() + 1, N.z() + 1);
+    }
+
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5 * (unit_direction.y() + 1.0);
     //linear interpolation = (1 - a) * startValue + a * endValue   where 0.0<=a<=1.0
