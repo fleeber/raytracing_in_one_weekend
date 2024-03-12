@@ -29,19 +29,20 @@ double hit_sphere(const point3& center, double radius, const ray& r) {
     //(P-C) dot (P-C) = (x-Cx)(x-Cx) + (y-Cy)(y-Cy) + (z-Cz)(z-Cz)
     //equivalently (P-C) dot (P-C) = r*r
     //a point P that satisfies the above equation is on the sphere.
-    
+    //  a vector dotted with itself == the squared length of the vector
     vec3 oc = r.origin() - center;
-    auto a = dot(r.direction(), r.direction());
-    auto b = 2.0 * dot(oc, r.direction());
-    auto c = dot(oc, oc) - radius * radius;
-    auto discriminant = b*b - 4*a*c;
+    auto a = r.direction().length_squared();
+    auto half_b = dot(oc, r.direction());
+    auto c = oc.length_squared() - radius*radius;
+    auto discriminant = half_b*half_b - a*c;
+    
     //positive discriminant = ray passes in and out at 2 points on sphere
     //negative discriminant = ray never touches sphere
     //zero discriminant = ray touches sphere once tangentially
     if(discriminant < 0) {
         return -1.0;
     } else { //find the location of the hit
-        return (-b - sqrt(discriminant)) / (2.0 * a); //right now it's less of a ray and more of a line
+        return (-half_b - sqrt(discriminant)) / a; //right now it's less of a ray and more of a line
     }
 }
 
