@@ -56,6 +56,13 @@ class vec3 {
         static vec3 random(double min, double max) { //to randomly bounce a ray
             return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
         }
+
+        bool near_zero() const {
+            //return true if vector is close to the zero vector
+            //  used to avoid zero scatter direction vector bounces
+            auto s = 1e-8;
+            return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
+        }
     };
 
     using point3 = vec3; //alias for clarity
@@ -125,6 +132,14 @@ class vec3 {
             return on_unit_sphere;
         else
             return -on_unit_sphere;
+    }
+
+    vec3 reflect(const vec3& v, const vec3& n) {
+        //the ray reflection direction of a ray v is v+2b
+        //b is orthogonal to the bounce point tangent and intersects with one end of v
+        //the length of b is v dot n
+        //the resulting vector will be traveling into the surface so it gets flipped with the minus sign
+        return v -  2 * dot(v,n) * n;
     }
 
 

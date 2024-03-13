@@ -1,14 +1,18 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "ray.h"
+#include "rtweekend.h"
 
-class hit_record {
+class material;
+
+class hit_record { //a way to stuff a bunch of arguments into a class to send them as a group
+
     public:
         point3 p;
         vec3 normal;
         double t;
         bool front_face;
+        shared_ptr<material> mat;
 
         //we compare the ray with the normal to figure out which side of the surface of the hittable the ray is hitting it from
         //make it so that normals always point against the incident ray

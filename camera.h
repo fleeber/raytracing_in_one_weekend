@@ -5,6 +5,7 @@
 
 #include "color.h"
 #include "hittable.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -81,11 +82,12 @@ class camera {
             if(world.hit(r, interval(0.001, infinity), rec)) { //then render the hittable
                 //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
                 //or the opposite when it gets flipped inside out
-                
-                    //diffuse material using random ray direction (CURRENTLY OMITTED), less like real life, less shadow variance
-                vec3 direction = rec.normal + random_unit_vector(); //using lambertian diffuse, more rays scattering towards the normal
-                //so less light bounces toward camera and more light bounces in shadow areas
-                return 0.5 * ray_color(ray(rec.p, direction), depth-1, world); //return 50% of the color from a bounce
+
+                ray scattered;
+                color attenuation;
+                if(rec.mat->scatter(r, rec, attenuation, scattered))
+                    return attenuation * ray_color(scattered, depth-1, world);
+                return color(0,0,0);
             }
             //if it didn't hit, make a sky gradient
             vec3 unit_direction = unit_vector(r.direction());
