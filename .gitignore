@@ -1,2 +1,3 @@
 *.o
 imageoutput
+.DS_Store
