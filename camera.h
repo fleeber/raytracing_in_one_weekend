@@ -82,8 +82,9 @@ class camera {
                 //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
                 //or the opposite when it gets flipped inside out
                 
-                //diffuse material using random ray direction
-                vec3 direction = random_on_hemisphere(rec.normal);
+                    //diffuse material using random ray direction (CURRENTLY OMITTED), less like real life, less shadow variance
+                vec3 direction = rec.normal + random_unit_vector(); //using lambertian diffuse, more rays scattering towards the normal
+                //so less light bounces toward camera and more light bounces in shadow areas
                 return 0.5 * ray_color(ray(rec.p, direction), depth-1, world); //return 50% of the color from a bounce
             }
             //if it didn't hit, make a sky gradient
