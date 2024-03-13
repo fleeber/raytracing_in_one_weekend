@@ -14,6 +14,8 @@ class camera {
         double aspect_ratio = 1.0;
         int image_width = 100;
         int samples_per_pixel = 10; //random samples for each pixel
+        int max_depth = 10; //maximum number of ray bounces into scene (otherwise a ray could take a ton of bounces 
+        //...(way too many) before it descends into the void)
 
         void render(const hittable& world) {
             initialize();
@@ -26,7 +28,7 @@ class camera {
                     color pixel_color(0,0,0);
                     for(int sample = 0; sample < samples_per_pixel; ++sample) {
                         ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, world);
+                        pixel_color += ray_color(r, max_depth, world);
                     }
                     write_color(std::cout, pixel_color, samples_per_pixel);
                 }
@@ -68,15 +70,21 @@ class camera {
 
         }
 
-        color ray_color(const ray& r, const hittable& world) const {
+        color ray_color(const ray& r, int depth, const hittable& world) const {
             hit_record rec;
-            if(world.hit(r, interval(0, infinity), rec)) { //then render the hittable
+
+            //if ray bounces exceeded, no more light gathered
+            if(depth <= 0)
+                return color(0,0,0);
+            //next we use 0.001 to ignore hits that are very close to the intersection point as a result of floating point rounding errors
+            //because these result in points on the surface that get darkened too many times ("shadow acne")
+            if(world.hit(r, interval(0.001, infinity), rec)) { //then render the hittable
                 //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
                 //or the opposite when it gets flipped inside out
                 
                 //diffuse material using random ray direction
                 vec3 direction = random_on_hemisphere(rec.normal);
-                return 0.5 * ray_color(ray(rec.p, direction), world); //return 50% of the color from a bounce
+                return 0.5 * ray_color(ray(rec.p, direction), depth-1, world); //return 50% of the color from a bounce
             }
             //if it didn't hit, make a sky gradient
             vec3 unit_direction = unit_vector(r.direction());
