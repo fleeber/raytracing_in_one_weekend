@@ -25,7 +25,7 @@ r g b
 
 color ray_color(const ray& r, const hittable& world) {
     hit_record rec;
-    if(world.hit(r, 0, infinity, rec)) { //then render the hittable
+    if(world.hit(r, interval(0, infinity), rec)) { //then render the hittable
         //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
         //or the opposite when it gets flipped inside out
         return 0.5 * (rec.normal + color(1,1,1)); //normal sphere

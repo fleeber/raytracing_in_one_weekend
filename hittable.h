@@ -23,7 +23,7 @@ class hit_record {
 class hittable { //cleaner solution than just having an array of objects
     public:
         virtual ~hittable() = default;
-        virtual bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const = 0;
+        virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 };
 
 #endif
