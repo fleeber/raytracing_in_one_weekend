@@ -8,6 +8,9 @@
 #include "material.h"
 
 #include <iostream>
+#include <chrono>
+
+using namespace std::chrono;
 
 class camera {
     public:
@@ -19,6 +22,9 @@ class camera {
         //...(way too many) before it descends into the void)
 
         void render(const hittable& world) {
+
+            auto start = high_resolution_clock::now();
+
             initialize();
 
             std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; //ppm header
@@ -34,7 +40,11 @@ class camera {
                     write_color(std::cout, pixel_color, samples_per_pixel);
                 }
             }
-            std::clog << "\rdone!                  \n";
+            auto stop = high_resolution_clock::now();
+            auto duration = duration_cast<microseconds>(stop - start);
+            auto seconds = duration.count() / 1000000.0;
+            std::clog << "\rdone!                 \n";
+            std::clog << "time elapsed: " << seconds << " seconds\n";
         }
 
     private:

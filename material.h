@@ -52,6 +52,7 @@ class metal : public material {
 
 class dielectric : public material {
     //clear materials are dielectrics. a ray hitting a clear material splits into a reflected ray and refracted (transmitted) ray
+    //a negative sphere radius can be used to make a hollow sphere that looks like a bubble
     //here we EVENTUALLY randomly choose one of those rays rather than generating both
     //the current material ALWAYS REFRACTS.
     public:
@@ -68,7 +69,7 @@ class dielectric : public material {
             bool cannot_refract = refraction_ratio * sin_theta > 1.0;
             vec3 direction;
 
-            if(cannot_refract)
+            if(cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
                 direction = reflect(unit_direction, rec.normal);
             else
                 direction = refract(unit_direction, rec.normal, refraction_ratio);
@@ -78,6 +79,13 @@ class dielectric : public material {
         }
     private:
         double ir; //index of refraction
+
+        static double reflectance(double cosine, double ref_idx) {
+            //use schlick's approximation for reflectance that varies based on angle of view
+            auto r0 = (1-ref_idx) / (1+ref_idx);
+            r0 = r0*r0;
+            return r0 + (1-r0) * pow((1 - cosine), 5);
+        }
 };
 
 #endif
