@@ -73,7 +73,10 @@ class camera {
             if(world.hit(r, interval(0, infinity), rec)) { //then render the hittable
                 //each normal is the vector from the center to the surface point, where the ray origin is moved to the surface and normalized
                 //or the opposite when it gets flipped inside out
-                return 0.5 * (rec.normal + color(1,1,1)); //normal sphere
+                
+                //diffuse material using random ray direction
+                vec3 direction = random_on_hemisphere(rec.normal);
+                return 0.5 * ray_color(ray(rec.p, direction), world); //return 50% of the color from a bounce
             }
             //if it didn't hit, make a sky gradient
             vec3 unit_direction = unit_vector(r.direction());
